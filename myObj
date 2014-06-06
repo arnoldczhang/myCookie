@@ -1,3 +1,453 @@
+/**
+**	-----------------------RANDOM-------------------------------------- 1
+**/
+var GetRandomNum = function(mainNum,viceNum) {
+	var random = mainNum + Math.random() * viceNum;
+	return random;
+};
+var GetRandomInt = function(mainNum,viceNum) {
+	var random = parseInt(mainNum + Math.random() * viceNum);
+	return random;
+};
+var GetRandomColor = function() {
+	var r, g, b;
+	r = GetRandomInt(0, 255);
+	g = GetRandomInt(0, 255);
+	b = GetRandomInt(0, 255);
+	return 'rgb(' + r + ',' + g + ',' + b + ')';
+};
+/**
+**-----------------------ELEMENT/STYLE---------------------------------- 2
+**/
+var GetElemId = function(id) {
+	var myID = document.getElementById(id);
+	return myID;
+};
+var GetElemClass = function(className) {
+	var myCLASS = document.getElementsByClassName(className);
+	return myCLASS;
+};
+var GetElemTag = function(tag) {
+	var myTAG = document.getElementsByTagName(tag);
+	return myTAG;
+};
+var GetElemStyleId = function(id) {
+	var myIdStyle = id.style;
+	return myIdStyle;
+};
+/**
+**----------------------------CLASS------------------------------------ 3
+**/
+var HasClass = function(obj, cls) {  
+	return obj.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));  
+};
+var AddClass = function(id, cls) {
+	var obj = document.getElementById(id);
+	if (!this.hasClass(obj, cls)) obj.className += " " + cls;  
+};
+var RemoveClass = function(id, cls) {  
+	var obj = document.getElementById(id);
+	if (hasClass(obj, cls)) {  
+		var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');  
+		obj.className = obj.className.replace(reg, ' ');  
+	}  
+};    
+var ToggleClass = function(id,cls){  
+	var obj = document.getElementById(id);
+	if(hasClass(obj,cls)){  
+		RemoveClass(id, cls);  
+	}else{  
+		AddClass(id, cls);  
+	}  
+};  	
+/**
+**	-------------------------CHECK------------------------------------- 4
+**/
+var CheckEmail = function(id, placeId, accordCls, unaccordCls) {
+	var temp,
+		  value = document.getElementById(id).value,
+		  place = document.getElementById(placeId),
+	  	  regex = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/g;
+	 if (regex.test(value)) {
+		 place.innerHTML = "符合邮箱格式";
+		 place.className = accordCls;
+		 temp = 1;
+	 }else {
+		if(value) {
+			place.innerHTML = "不符合邮箱格式";
+			place.className = unaccordCls;		
+		}else {
+			place.innerHTML = "";
+		}
+		temp = 0;
+	 }
+	 return temp;
+};
+var CheckPostCode = function(id, placeId, accordCls, unaccordCls) {
+	var temp,
+		  value = document.getElementById(id).value,
+		  place = document.getElementById(placeId),
+	  	  regex = /^[0-9]{6}$/g;
+	 if (regex.test(value)) {
+		 place.innerHTML = "符合邮编格式";
+		 place.className = accordCls;
+		 temp = 1;
+	 }else {
+		if(value) {
+			 place.innerHTML = "不符合邮编格式";
+			 place.className = unaccordCls;
+		}else {
+			place.innerHTML = "";
+		}
+		 temp = 0;
+	 }
+	 return temp;
+};
+var CheckNumber = function(id, placeId, i, j, accordCls, unaccordCls) {
+	var temp,
+		  value = document.getElementById(id).value,
+		  place = document.getElementById(placeId),
+	  	  regex =new RegExp("^\[0-9]{" + i + "," + j + "}$","g");
+	 if (regex.test(value)) {
+		 place.innerHTML = "";
+		 place.className = accordCls;
+		 temp = 1;
+	 }else {
+		if (value) {
+			 place.innerHTML = "格式不符合";
+			 place.className = unaccordCls;
+		}else {
+			place.innerHTML = "";
+		}
+		 temp = 0;
+	 }
+	 return temp;
+};
+var CheckMobile = function(id, placeId, accordCls, unaccordCls) {
+	var temp,
+		  value = document.getElementById(id).value,
+		  place = document.getElementById(placeId),
+	  	  regex = /^((\(\d{3}\))|(\d{3}\-))?13[0-9]\d{8}|15[0-9]\d{8}|189\d{8}$/g;
+	 if (regex.test(value)) {
+		 place.innerHTML = "符合手机格式";
+		 place.className = accordCls;
+		 temp = 1;
+	 }else {
+		if (value) {
+			 place.innerHTML = "不符合手机格式";
+			 place.className = unaccordCls;
+		}else {
+			 place.innerHTML = "";
+		}
+		 temp = 0;
+	 }
+	 return temp;
+};
+var CheckLength = function(id, placeId, minLength, maxLength, accordCls, unaccordCls) {
+	var temp,
+		  len = document.getElementById(id).value.length,
+		  place = document.getElementById(placeId);
+	if (len >= minLength && len <= maxLength) {
+		place.innerHTML = "字数符合";
+		place.className = accordCls;
+		temp = 1;
+	}else if (len < minLength && len){
+		place.innerHTML = "字数太少，还需" + (minLength - len) + "个字";
+		place.className = unaccordCls;
+		temp = 0;
+	}else if (len > maxLength) {
+		place.innerHTML = "字数太多，超出" + (len - maxLength) + "个字";
+		place.className = unaccordCls;
+		temp = 0;
+	}else {
+		temp = 0;
+	}
+	return temp;
+};
+var CheckTheSame = function(targetId, targetId2, placeId) {
+	var temp,
+		  value1 = document.getElementById(targetId).value,
+		  value2 = document.getElementById(targetId2).value,
+		  place = document.getElementById(placeId);
+	if (value1 === value2 && value1 && value2) {
+		place.innerHTML = "内容一致";
+		temp = 1;
+	}else if (value1 && value2){
+		place.innerHTML = "内容不一致";
+		temp = 0;
+	}
+	return temp;
+};
+/**
+**---------------------------EVENT-----------------------------------5
+**/
+var AddEvent = function(id, handler, fn) {
+	var target = document.getElementById(id);
+	if ("v" === "\v") {
+		target.attachEvent("on" + handler, fn);
+	}else {
+		target.addEventListener(handler, fn, false);
+	}
+};
+var OnPropertyChange = function(id, fn) {
+	var target = document.getElementById(id);
+	if ('\v' === 'v') {
+		target.onpropertychange = fn; 
+	}else {
+		target.addEventListener('input', fn, false);
+	}
+};
+var OnKeyChange = function(id, fn) {
+	var target = document.getElementById(id);
+	if ('\v' === 'v') {
+		target.attachEvent('onkeydown', fn);
+	}else {
+		target.addEventListener('keydown', fn, false);
+	}
+};
+var OnChange = function(id, fn, fn2) {
+	var target = document.getElementById(id);
+	if ('\v' === 'v') {
+		target.onpropertychange = fn; 
+		target.attachEvent('onkeydown', fn2);
+	}else {
+		target.addEventListener('input', fn, false);
+		target.addEventListener('keydown', fn2, false);
+	}
+};
+/**
+**-----------------------------COOKIE----------------------------------6
+**/
+var SetCookie = function(name,value) {
+    var Days = 0.1; 
+    var exp  = new Date();    
+    exp.setTime(exp.getTime() + Days*24*60*60*1000);
+    document.cookie = name + 
+			"="+ escape (value) + 
+			";expires=" + 
+			exp.toGMTString();
+};
+var GetCookie = function(name) {
+    var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+     if (arr != null) {
+		return unescape(arr[2]); 
+	}
+	return null;
+
+};
+var DelCookie = function(name) {
+    var exp = new Date();
+    exp.setTime(exp.getTime() - 1);
+    var cval = GetCookie(name);
+    if (cval != null) {
+		document.cookie = name + 
+				"=" + cval + 
+				";expires="+ 
+				exp.toGMTString();
+	}
+};
+/**
+**----------------------------VALUE/TEXT-------------------------------------7
+**/
+var GetVal = function(id) {
+	var target = document.getElementById(id),
+		  value = target.value;
+	return value;
+};
+var SetVal = function(id, val) {
+	var target = document.getElementById(id);
+	target.value = val;
+};
+var GetText = function(id) {
+	var target = document.getElementById(id),
+		  value = target.innerHTML;
+	return value;
+};
+var SetText = function(id, text) {
+	var target = document.getElementById(id);
+	target.innerHTML = text;
+};
+/**
+**----------------------------DATE-------------------------------------8
+**/
+var getStartDate = function(dayTip) {
+	var PERDAY = 24 * 60 * 60 * 1000,
+		  WEEK = 7,
+		  MONTH = 30,
+		  HALFYEAR = 182,
+		  YEAR = 365;
+	var date;
+	var startYear, startMonth, startDay;
+	var endDate = new Date();
+	switch(dayTip) {
+		case "seven" :
+			date = new Date(endDate - WEEK * PERDAY);
+			break;
+		case "one_month" :
+			date = new Date(endDate - MONTH * PERDAY);
+			break;
+		case "three_month" :
+			date = new Date(endDate - 3 * MONTH * PERDAY);
+			break;
+		case "six_month" :
+			date = new Date(endDate - HALFYEAR * PERDAY);
+			break;
+		case "year" :
+			date = new Date(endDate - YEAR * PERDAY);
+			break;
+	}
+	startDate = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+	return startDate;
+};
+/**
+**----------------------------MAP-------------------------------------9
+**/
+function Map() {
+   
+    var struct = function(key, value) {
+        this.key = key;
+        this.value = value;
+    };
+ 
+    var put = function(key, value) {
+        for ( var i = 0; i < this.arr.length; i++) {
+            if (this.arr[i].key === key) {
+                this.arr[i].value = value;
+                return;
+            }
+        }
+        this.arr[this.arr.length] = new struct(key, value);
+    };
+     
+ 
+    var get = function(key) {
+        for ( var i = 0; i < this.arr.length; i++) {
+            if (this.arr[i].key === key) {
+                return this.arr[i].value;
+            }
+        }
+        return null;
+    };
+ 
+    var remove = function(key) {
+        var v;
+        for ( var i = 0; i < this.arr.length; i++) {
+            v = this.arr.pop();
+            if (v.key === key) {
+                continue;
+            }
+            this.arr.unshift(v);
+        }
+    };
+ 
+    var size = function() {
+        return this.arr.length;
+    };
+ 
+    var isEmpty = function() {
+        return this.arr.length <= 0;
+    };
+ 
+    this.arr = new Array();
+    this.get = get;
+    this.put = put;
+    this.remove = remove;
+    this.size = size;
+    this.isEmpty = isEmpty;
+}
+/**
+**比如：
+var projStatus = {
+	"b0" : "新建0",
+	"b1" : "新建1",
+	"b2" : "新建2",
+	"b3" : "新建3",
+	"b4" : "新建4",
+	"b5" : "新建5",
+	"b6" : "新建6",
+	"b7" : "新建7",
+	"b8" : "新建8",
+};
+var value = "b1";
+projStatus[value];
+**/
+
+/**
+**----------------------------JSON-------------------------------------10
+**/
+var info = {
+	"arrayList" :[
+		{"name" : "zhangSan", "sex" : "male"},
+		{"name" : "liSi", "sex" : "female"}
+	],
+	"arrayList2" :[
+		{"name" : "wangWu", "sex" : "male"},
+		{"name" : "liuLiu", "sex" : "female"}
+	],
+};
+console.log(info.arrayList[0].name);
+/**
+**----------------------------xxxxxx-----------------------------------11
+**/
+//安全码加密
+private PasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+String hashedPassword = passwordEncoder.encodePassword(password, username);
+//data属性
+<div id="cc" class="cmt0 pngfix skrollable skrollable-before" data-19500="opacity:0;" data-19000="opacity:1;" data-18500="opacity:0;" style="height:100px;width:100px;background-color:black;float:right;position:relative;"></div>
+var rxKeyframeAttribute = /^data(?:-(_\w+))?(?:-?(-?\d*\.?\d+p?))?(?:-?(start|end|top|center|bottom))?(?:-?(top|center|bottom))?$/;
+for (var i = 0; i < attrLength; i += 1) {
+	var attr = dd.attributes[i];
+	var props = attr.value;
+	var nm = props.split(":")[0];
+	var value = props.split(":")[1];
+	var match = attr.name.match(rxKeyframeAttribute);
+}
+//a标签打开新的选项卡而不是页面直接跳转
+<a href="..." target="_blank" >dddd</a>
+//自执行立即调用方法
+(function dd() {
+	console.log("dd");
+}());
+//设置标签栏图标
+<link href="res/images/logo.jpg" rel="shortcut icon" />
+//
+$("#progressInvest").html(projDetail.progressInvest+"%");
+			$(".huge_progress_actual").animate({"width": "0%"},200);
+			setTimeout(function() {
+				$(".huge_progress_actual").css("width", projDetail.progressInvest+"%");
+			}, 500);		
+//金额转大写
+function numToCny(num){     
+    var capUnit = ['万','亿','万','圆',''];     
+    var capDigit = { 2:['角','分',''], 4:['仟','佰','拾','']};     
+    var capNum=['零','壹','贰','叁','肆','伍','陆','柒','捌','玖'];     
+    if (((num.toString()).indexOf('.') > 16)||(isNaN(num)))      
+        return '';     
+    num = ((Math.round(num*100)).toString()).split('.');  
+ num = (num[0]).substring(0, (num[0]).length-2)+'.'+ (num[0]).substring((num[0]).length-2,(num[0]).length);  
+    num =((Math.pow(10,19-num.length)).toString()).substring(1)+num;     
+    var i,ret,j,nodeNum,k,subret,len,subChr,CurChr=[];     
+    for (i=0,ret='';i<5;i++,j=i*4+Math.floor(i/4)){     
+        nodeNum=num.substring(j,j+4);     
+        for(k=0,subret='',len=nodeNum.length;((k<len) && (parseInt(nodeNum.substring(k),10)!=0));k++){     
+            CurChr[k%2] = capNum[nodeNum.charAt(k)]+((nodeNum.charAt(k)==0)?'':capDigit[len][k]);     
+            if (!((CurChr[0]==CurChr[1]) && (CurChr[0]==capNum[0])))     
+                if(!((CurChr[k%2] == capNum[0]) && (subret=='') && (ret=='')))     
+                    subret += CurChr[k%2];     
+        }     
+        subChr = subret + ((subret=='')?'':capUnit[i]);     
+        if(!((subChr == capNum[0]) && (ret=='')))     
+            ret += subChr;     
+    }     
+    ret=(ret=='')? capNum[0]+capUnit[3]: ret;       
+        
+	if (num % 10000) {
+		return ret + "圆整"; 
+	}else {
+		return ret + "整";
+	}
+}   
+var dd = numToCny(100000);
 //a标签防止选中
 1.<a hidefocus="true" href="..."></a> //ie
 2. a {
