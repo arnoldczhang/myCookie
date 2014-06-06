@@ -1,0 +1,8 @@
+//a标签防止选中
+1.<a hidefocus="true" href="..."></a> //ie
+2. a {
+	outline : none;				//ff
+}
+
+//a标签取消浏览器默认行为
+<a href="http://zhidao.baidu.com" onclick="return false">百度知道</a> //防止跳转
