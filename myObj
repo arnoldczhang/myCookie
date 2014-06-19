@@ -1,3 +1,31 @@
+
+/******************************contents**********************************
+*RANDOM
+*******************
+*ELEMENT/STYLE
+*******************
+*CLASS
+*******************
+*CHECK
+*******************
+*EVENT
+*******************
+*COOKIE
+*******************
+*VALUE/TEXT
+*******************
+*DATE
+*******************
+*MAP
+*******************
+*JSON
+*******************
+\U000000
+*******************
+@标注
+***********************************************************************/
+
+
 /**
 **	-----------------------RANDOM-------------------------------------- 1
 **/
@@ -63,6 +91,26 @@ var ToggleClass = function(id,cls){
 /**
 **	-------------------------CHECK------------------------------------- 4
 **/
+var CheckChinese = function(id, placeId, accordCls, unaccordCls) {
+	var target = document.getElementById(id),
+		  place = document.getElementById(placeId),
+		  temp;
+	if (target.value) {
+		if (escape(target.value).indexOf("%u") < 0) { 
+			place.innerHTML = "";
+			place.className = accordCls;
+			temp = 1;
+		}else {
+			place.innerHTML = "对不起，不可包含汉字";
+			place.className = unaccordCls;
+			temp = 0;
+		}
+	}else {
+		place.innerHTML = "";
+		temp = 0;
+	}	
+	return temp;
+};
 var CheckEmail = function(id, placeId, accordCls, unaccordCls) {
 	var temp,
 		  value = document.getElementById(id).value,
@@ -387,7 +435,184 @@ var info = {
 };
 console.log(info.arrayList[0].name);
 /**
-**----------------------------xxxxxx-----------------------------------11
+**----------------------------\u000000-----------------------------------11
+**/
+var UnicodeToChinese = function(uStr) {
+	var cStr=unescape(uStr.replace(/\\u/g,'%u'));
+	return cStr;
+};
+var ChineseToUnicode = function(cStr) {
+	var uStr = cStr.replace(/[^\u0000-\u00FF]/g,function($0){return escape($0).replace(/(%u)(\w{4})/gi,"&#x$2;")});
+	uStr = uStr.replace(/;/g,'');
+	uStr = uStr.replace(/&#x/g,'\\u');
+	return uStr;
+};
+/**
+**----------------------------@标注--------------------------------12
+**Spring MVC,Spring Container,Spring Reactor
+**/
+***@RequestMapping***
+RequestMapping注解有六个属性，下面我们把她分成三类进行说明:
+1.value, method;
+value：指定请求的实际地址uri，指定的地址可以是URI Template 模式；
+			value的uri值为以下三类：
+			A) 可以指定为普通的具体值；						value="/newDay"
+			B)  可以指定为含有某变量的一类值；			value="/newDay/{day}"或value="/{day}"
+			C) 可以指定为含正则表达式的一类值；			value="/newDay/{symbolicName:[a-z-]+}-{version:\d\.\d\.\d}.{extension:\.[a-z]}"
+method：指定请求的method类型， GET、POST、PUT、DELETE等；
+
+例：@RequestMapping(value="/day", method = RequestMethod.GET)  
+
+		@RequestMapping(value="/{day}", method = RequestMethod.GET)  
+		public Map getForDay(@PathVariable @DateTimeFormat(iso=ISO.DATE) Date day, Model model) {  
+		return appointmentBook.getAppointmentsForDay(day);  
+		}  
+
+		@RequestMapping(value="/owners/{ownerId}", method=RequestMethod.GET) 
+		public String findOwner(@PathVariable String ownerId, Model model) {  
+		  Owner owner = ownerService.findOwner(ownerId);    
+		  model.addAttribute("owner", owner);    
+		  return "displayOwner";   
+		}  
+
+		@RequestMapping("/spring-web/{symbolicName:[a-z-]+}-{version:\d\.\d\.\d}.{extension:\.[a-z]}")  
+		public void handle(@PathVariable String version, @PathVariable String extension) {      
+		// ...  
+		}  
+
+		@RequestMapping(method = RequestMethod.POST)  
+		public String add(@Valid AppointmentForm appointment, BindingResult result) {  
+			if (result.hasErrors()) {  
+				return "appointments/new";  
+			}  
+			appointmentBook.addAppointment(appointment);  
+			return "redirect:/appointments";  
+		}  
+		
+2. consumes,produces;
+consumes：指定处理请求的提交内容类型（Content-Type），例如application/json, text/html;
+produces:   指定返回的内容类型，仅当request请求头中的(Accept)类型中包含该指定类型才返回；
+
+例：//方法仅处理request Content-Type为“application/json”类型的请求。
+		@Controller  
+		@RequestMapping(value = "/pets", method = RequestMethod.POST, consumes="application/json")  
+		public void addPet(@RequestBody Pet pet, Model model) {      
+			... 
+		}  
+		
+		//方法仅处理request请求中Accept头中包含了"application/json"的请求，同时暗示了返回的内容类型为application/json;
+		@Controller  
+		@RequestMapping(value = "/pets/{petId}", method = RequestMethod.GET, produces="application/json")  
+		@ResponseBody  
+		public Pet getPet(@PathVariable String petId, Model model) {      
+			...
+		}  
+		
+3. params,headers;
+params：指定request中必须包含某些参数值是，才让该方法处理。
+headers：指定request中必须包含某些指定的header值，才能让该方法处理请求。
+
+例：@Controller  
+		@RequestMapping("/owners/{ownerId}")  
+		public class RelativePathUriTemplateController {  
+		  
+			  // 仅处理请求中包含了名为“myParam”，值为“myValue”的请求；
+			  @RequestMapping(value = "/pets/{petId}", method = RequestMethod.GET, params="myParam=myValue")  
+			  public void findPet(@PathVariable String ownerId, @PathVariable String petId, Model model) {      
+				...  
+			  }  
+		}  
+		
+		@Controller  
+		@RequestMapping("/owners/{ownerId}")  
+		public class RelativePathUriTemplateController {  
+			
+			//仅处理request的header中包含了指定“Refer”请求头和对应值为“http://www.ifeng.com/”的请求；
+			@RequestMapping(value = "/pets", method = RequestMethod.GET, headers="Referer=http://www.ifeng.com/")  
+			  public void findPet(@PathVariable String ownerId, @PathVariable String petId, Model model) {      
+				...
+			  }  
+		}  
+
+		
+		
+***@RequestParam***
+A) 常用来处理简单类型的绑定，通过Request.getParameter() 获取的String可直接转换为简单类型的情况
+	（ String--> 简单类型的转换操作由ConversionService配置的转换器来完成）；
+	因为使用request.getParameter()方式获取参数，所以可以处理get 方式中queryString的值，
+	也可以处理post方式中 body data的值；
+B) 用来处理Content-Type: 为 application/x-www-form-urlencoded编码的内容，
+	提交方式GET、POST；
+C) 该注解有两个属性： value、required； value用来指定要传入值的id名称，
+	required用来指示参数是否必须绑定；	
+D)@RequestParam绑定单个请求参数值，作用于单个参数，而不是对象
+例：@Controller  
+		@RequestMapping("/pets")  
+		@SessionAttributes("pet")  
+		public class EditPetForm {  
+		  
+			@RequestMapping(method = RequestMethod.GET)  
+			public String setupForm(@RequestParam("petId") int petId, ModelMap model) {  
+				Pet pet = this.clinic.loadPet(petId);  
+				model.addAttribute("pet", pet);  
+				return "petForm";  
+			}  	
+			
+		@RequestMapping("/addHouse.do")
+		public String addHouse(
+		@RequestParam(value ="companyId", required = true) int companyId ,
+		@RequestParam(value ="pics", required = false) CommonsMultipartFile pics ,
+		HttpServletRequest request,HttpServletResponse response, ModelMap model){
+			...
+		}
+		
+		
+		
+***@ResponseBody***
+A)	将内容或对象作为 HTTP 响应正文返回，即不需要VIEW展现层模块，直接显示到客户端的内容。
+B)		POST模式下，使用@RequestBody绑定请求对象
+例：@RequestMapping(value="/search", method=RequestMethod.POST)
+		public @ResponseBody ModelAndView search(@Valid C c, BindingResult bindingResult, 
+				@RequestParam(defaultValue="1") int page) {
+			...
+		}
+		
+		
+
+***@Valid***
+定递归验证关联的对象；如用户对象中有个地址对象属性，
+如果想在验证用户对象时一起验证地址对象的话，
+在地址对象上加@Valid注解即可级联验证。
+例：@Transactional
+		@RequestMapping(value = "/transOutQuery", method=RequestMethod.GET)
+		@PreAuthorize("isAuthenticated()")
+		public @ResponseBody ModelAndView transOutQuery(@AuthenticationPrincipal WebUser user , 
+				@Valid ProjSearchInfo searchInfo ,BindingResult bindingResult) {
+			...
+		}
+
+
+
+***@PersistenceContext***
+private EntityManager em;
+注入的是实体管理器，执行持久化操作的，需要配置文件persistence.xml。
+针对实体类的不同状态(四种,managedh或detached等)，
+可以做出不同的反应(merge,persist等等)，其实就是把数据从数据库里提出，
+然后在内存里处理的，再返回数据库的法则。
+
+
+
+***@Resource***
+是注入容器提供的资源对象，比如SessionContext MessageDrivenContext。
+或者你那个name指定的JNDI对象，基本上就是告诉程序数据库在哪里
+
+
+
+***@Autowired***
+spring可以自动帮你把bean里面引用的对象的setter/getter方法省略，
+它会自动帮你set/get。
+/**
+**----------------------------xxxxxx-----------------------------------13
 **/
 //安全码加密
 private PasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
@@ -453,6 +678,8 @@ var dd = numToCny(100000);
 2. a {
 	outline : none;				//ff
 }
-
 //a标签取消浏览器默认行为
 <a href="http://zhidao.baidu.com" onclick="return false">百度知道</a> //防止跳转
+//去除绑定事件
+dd.onclick = null;
+
