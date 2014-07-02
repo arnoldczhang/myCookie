@@ -1,0 +1,65 @@
+//********tab,datasource********//
+private ListGrid listGrid;
+
+private ListGridRecord[]  getRecords(){
+	List<ListGridRecord> records = new ArrayList<ListGridRecord>();
+	ListGridRecord record1 = new ListGridRecord();
+	record1.setAttribute(uLbtPtpFprojInf.ProjNo().getName(), 1);
+	record1.setAttribute(uLbtPtpFprojInf.ProdNo().getName(), 001);
+	record1.setAttribute(uLbtPtpFprojInf.ProjName().getName(), "lbt-1-month");
+	record1.setAttribute(uLbtPtpFprojInf.ProjStatus().getName(), "S0");
+	record1.setAttribute(uLbtPtpFprojInf.InstStartTime().getName(), new Date());
+	record1.setAttribute(uLbtPtpFprojInf.InstEndTime().getName(), new Date());
+	record1.setAttribute(uLbtPtpFprojInf.ProjType().getName(), 1);
+	record1.setAttribute(uLbtPtpFprojInf.ProjSubType().getName(), 1);
+	record1.setAttribute("button", "add");
+	records.add(record1);
+	return records.toArray(new ListGridRecord[records.size()]);
+}
+
+listGrid = new ListGrid();
+{
+	/**
+	*
+	**/
+	listGrid.setData(getRecords());
+}
+//********tab***************//	
+TabSet tabpanel = new TabSet();
+{
+	Tab tab = new Tab();
+	Tab tab2 = new Tab();
+	tab.setTitle("xx");
+	tab.setPane(listGrid);
+	tab2.setTitle("x");
+	tab2.setPane(listGrid);
+	tabpanel.addTab(tab);
+	tabpanel.addTab(tab2);
+}
+addMember(tabpanel);
+
+
+//********group********//
+form = new YakDynamicForm();
+{	
+	form.setIsGroup(true);
+	form.setGroupTitle("单条规则设置");
+	form.setCanEdit(false);
+	form.setWidth100();
+	form.setAutoHeight();
+	form.setNumCols(4);
+	form.setColWidths(150, 200, 150, 200);
+	FormItem prodName =	uLbtPtpFprodInf.ProdAppUser().required().createFormItem();
+	prodName.setTitle("条件参数");
+	prodName.setDefaultValue("融资金额");
+	FormItem prodType = uLbtPtpFprodInf.ProdAppResult().required().createSelectItem();
+	prodType.setDefaultValue("<");
+	prodType.setTitle("操作符");
+	form.setItems(prodName,
+		  prodType,
+		  prodTamp,
+		  prodDueItem
+	);
+	form.setWidth(800);
+	addMember(form);
+}
