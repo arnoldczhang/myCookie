@@ -23,6 +23,10 @@
 \U000000
 *******************
 @标注
+*******************
+设计模式
+*******************
+排序
 ***********************************************************************/
 
 
@@ -151,7 +155,7 @@ var CheckPostCode = function(id, placeId, accordCls, unaccordCls) {
 	 }
 	 return temp;
 };
-var CheckNumber = function(id, placeId, i, j, accordCls, unaccordCls) {
+var CheckNumber = function(id, i, j, placeId, accordCls, unaccordCls) {
 	var temp,
 		  value = document.getElementById(id).value,
 		  place = document.getElementById(placeId),
@@ -231,10 +235,12 @@ var CheckTheSame = function(targetId, targetId2, placeId) {
 **/
 var AddEvent = function(id, handler, fn) {
 	var target = document.getElementById(id);
-	if ("v" === "\v") {
+	if (window.attachEvent) {
 		target.attachEvent("on" + handler, fn);
-	}else {
+	}else if (window.addEventListener){
 		target.addEventListener(handler, fn, false);
+	}else {
+		target["on" + handler] = fn;
 	}
 };
 var OnPropertyChange = function(id, fn) {
@@ -347,6 +353,30 @@ var getStartDate = function(dayTip) {
 	startDate = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
 	return startDate;
 };
+var getDayOfYear = function(year, month, day) {
+
+	var dateArr, 
+		  resultDay = 0;
+	if ((year % 4 === 0 && year % 100 != 0) || year % 400 === 0) {
+		dateArr = new Array(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+	}else {
+		dateArr = new Array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+	}
+	
+	if (month < 0 || month > 12) {
+		return false;
+	}
+	
+	if (day < 0 || day > 31 || day > dateArr[month - 1]) {
+		return false;
+	}
+	
+	for (var i = 0; i < month; i += 1) {
+		resultDay += dateArr[i];
+	}
+	resultDay += day;
+	return resultDay;
+};
 /**
 **----------------------------MAP-------------------------------------9
 **/
@@ -451,6 +481,11 @@ var ChineseToUnicode = function(cStr) {
 **----------------------------@标注--------------------------------12
 **Spring MVC,Spring Container,Spring Reactor
 **/
+@Component:可装载组件  
+@Repository:持久层组件  
+@Service:服务层组件  
+@Controller:控制层组件 
+
 ***@RequestMapping***
 RequestMapping注解有六个属性，下面我们把她分成三类进行说明:
 1.value, method;
@@ -551,6 +586,7 @@ D)@RequestParam绑定单个请求参数值，作用于单个参数，而不是�
 		@SessionAttributes("pet")  
 		public class EditPetForm {  
 		  
+			//如果参数名不能和变量保持一致，则用RequestParam强制绑定
 			@RequestMapping(method = RequestMethod.GET)  
 			public String setupForm(@RequestParam("petId") int petId, ModelMap model) {  
 				Pet pet = this.clinic.loadPet(petId);  
@@ -558,14 +594,21 @@ D)@RequestParam绑定单个请求参数值，作用于单个参数，而不是�
 				return "petForm";  
 			}  	
 			
-		@RequestMapping("/addHouse.do")
-		public String addHouse(
-		@RequestParam(value ="companyId", required = true) int companyId ,
-		@RequestParam(value ="pics", required = false) CommonsMultipartFile pics ,
-		HttpServletRequest request,HttpServletResponse response, ModelMap model){
-			...
-		}
-		
+			@RequestMapping(method = RequestMethod.GET)  
+			public String setupForm(@RequestParam int petId, @RequestParam String username, ModelMap model) {  
+				Pet pet = this.clinic.loadPet(petId);  
+				model.addAttribute("pet", pet);  
+				return "petForm";  
+			} 
+			
+			@RequestMapping("/addHouse.do")
+			public String addHouse(
+			@RequestParam(value ="companyId", required = true) int companyId ,
+			@RequestParam(value ="pics", required = false) CommonsMultipartFile pics ,
+			HttpServletRequest request,HttpServletResponse response, ModelMap model){
+				...
+			}
+}		
 		
 		
 ***@ResponseBody***
@@ -611,8 +654,187 @@ private EntityManager em;
 ***@Autowired***
 spring可以自动帮你把bean里面引用的对象的setter/getter方法省略，
 它会自动帮你set/get。
+
+
+
+***@Session***
+如果想将某个ModelMap中的参数指定到Session中，可以使用@SessionAttributes注解
+例：@Controller  
+		@RequestMapping("/account.do")  
+		@SessionAttributes("msg")  
+		public class AccountController {  
+		  
+			@Autowired  
+			private AccountService accountService;  
+		  
+			@SuppressWarnings("unchecked")  
+			@RequestMapping(method = RequestMethod.GET)  
+			public Map hello(String username, String password, ModelMap model) {  
+		  
+				System.out.println(accountService.verify(username, password));  
+		  
+				model.put("msg", username);  
+				return model;  
+			}  
+		  
+		}  
 /**
-**----------------------------xxxxxx-----------------------------------13
+**----------------------------设计模式-----------------------------------13
+**/
+
+//工厂
+
+var XMLHttpFactory = function() {};
+XMLHttpFactory.createXMLHttp = function() {
+	var XMLHttp = null;
+	if (window.XMLHttpRequest) {
+		XMLHttp = new XMLHttpRequest();
+	}else if (window.ActiveXObject) {
+		XMLHttp = new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	return XMLHttp;
+};
+var AjaxHandler = function() {
+	var XMLHttp = XMLHttpFactory.createXMLHttp();
+	...
+};
+
+//桥梁
+//桥梁模式可以用来弱化它与使用它的类和对象之间的耦合，就是将抽象与其实现隔离开来
+
+function getBeerById(id, callBack) {
+	asyncRequest("GET", "beer.url?id=" + id, function(resp) {
+		callBack(resp.responseText)
+	});
+};
+function getBeerByIdBridge(e) {
+	getBeerById(this.id, function(beer) {
+		...
+	});
+}
+addEvent(element, "click", getBeerByIdBridge);
+
+//装饰者
+
+var myText = {};
+myText.Decoration = {};
+myText.Core = function(str) {
+	this.show = function() {
+		...
+	}
+};
+myText.Decoration.addMark = function(str) {
+	this.show = function() {
+		...
+	}
+};
+myText.Decoration.addItalic = function(str) {
+	this.show = function() {
+		...
+	}
+};
+
+//门面
+
+_myModel.util.Event = {
+	getEvent : function(e) {
+		return e || window.event;
+	},
+	getTarget : function(e) {
+		return e.target || e.srcElement;
+	},
+	preventDefault : function(e) {
+		if (e.preventDefault) {
+			e.preventDefault();
+		}else {
+			e.returnValue = false;
+		}
+	}
+};
+addEvent("dd", "click", function(e) {
+	_myModel.util.Event.getTarget(e);
+});
+
+//代理
+
+var PublicLibrary = function(books) {
+	...
+};
+PublicLibrary.prototype = {
+	findBooks : funciton(searchStr) {
+		...
+	},
+	checkoutBook : function(book) {
+		...
+	},
+	returnBook : function(book) {
+		...
+	}
+};
+var PublicLibraryProxy = function(catalog) {
+	this.library = new PubliLibrary(catalog);
+};
+PublicLibraryProxy.prototype = {
+	findBooks : function(searchStr) {
+		return this.library.findBooks(searchStr);
+	},
+	checkoutBook : function(book) {
+		return this.library.checkoutBook(book);
+	},
+	returnBook : function(book) {
+		return this.library.returnBook(book);
+	}
+};
+
+//观察者
+
+var fn1 = function() {
+	...
+};
+var fn2 = function() {
+	...
+};
+addEvent(element, "click", fn1);
+addEvent(element, "click", fn2);
+/**
+**----------------------------排序-----------------------------------14
+**/
+
+//冒泡
+
+window.onload = function() {
+	var TEMP;
+	var isChanged;
+	var arrNum;
+	var arr = new Array(10);
+	var TIMES = arr.length;
+	for (var k = 0; k < TIMES; k += 1) {
+		arrNum = ~~(Math.random() * 100);
+		arr[k] = arrNum;
+	}
+	
+	for (var j = TIMES; j > 0; j -= 1) {
+		isChanged = false;
+		for (var i = 0; i < j - 1; i += 1) {
+			if (arr[i] > arr[i + 1]) {
+				TEMP = arr[i];
+				arr[i] = arr[i + 1];
+				arr[i + 1] = TEMP;
+				isChanged = true;
+			}
+		}		
+		if (!isChanged) {
+			break;
+		}
+		console.log(arr);		
+	}
+	
+};
+
+//
+
+/**
+**----------------------------xxxxxx-----------------------------------15
 **/
 //安全码加密
 private PasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
@@ -682,4 +904,96 @@ var dd = numToCny(100000);
 <a href="http://zhidao.baidu.com" onclick="return false">百度知道</a> //防止跳转
 //去除绑定事件
 dd.onclick = null;
+//判断className是否已经有了
+var clsArr = a1.className.split(" ");
+for (var i = 0; i < clsArr.length; i += 1) {
+	if (clsArr[i] !== "sb") {
+		if (i === clsArr.length - 1) {
+			a1.className += " sb";
+		}
+	}else {
+		return false;
+	}
+}
+//join,split
+var a1.className = "asdoj  jasj fj oajs j";
+var clsArr = a1.className.split(" ")
+var str = clsArr.join(" ");
+console.log(clsArr);
+console.log(str);
+console.log(a1.className);
 
+//构造器模式
+<input type="text" id="a1" />
+<label id="a1label"></label><br/>
+<input type="button" id="sub" value="click"/>
+var ClientUtils = function() {};
+
+ClientUtils.prototype.CheckName = function(id,placeId) {
+	
+	var target = document.getElementById(id);
+	var place = document.getElementById(placeId);
+	var len = target.value.length;
+	var temp = 0; 
+	
+	if (len) {
+		if (len < 5) {
+			place.textContent = "x";
+			place.innerText = "x";
+			temp = 0; 
+		}else if (len < 10) {
+			place.textContent = "xx";
+			place.innerText = "xx";
+			temp = 1; 
+		}else {
+			place.textContent = "xxxx";
+			place.innerText = "xxxx";
+			temp = 0; 
+		}
+	}
+	return temp;
+};
+
+var utils = new ClientUtils();
+var sub = document.getElementById("sub");
+sub.onclick = function() {
+	utils.CheckName("a1", "a1label");
+};
+
+
+
+//观察者模式
+<input type="text" id="a1" />
+<label id="a1label"></label><br/>
+<input type="button" id="sub" value="click"/>
+var ClientUtils= {};
+
+(function(utils) {
+	
+	utils.CheckName = function(id,placeId) {	
+		var target = document.getElementById(id);
+		var place = document.getElementById(placeId);
+		var len = target.value.length;
+		var temp = 0; 
+		
+		if (len) {
+			if (len < 5) {
+				place.textContent = "x";
+				place.innerText = "x";
+				temp = 0; 
+			}else if (len < 10) {
+				place.textContent = "xx";
+				place.innerText = "xx";
+				temp = 1; 
+			}else {
+				place.textContent = "xxxx";
+				place.innerText = "xxxx";
+				temp = 0; 
+			}
+		}
+		return temp;
+	};
+} (ClientUtils));
+sub.onclick = function() {
+	ClientUtils.CheckName("a1", "a1label");
+};
