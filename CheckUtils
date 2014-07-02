@@ -1,0 +1,43 @@
+/**
+**aa.onclick =  function() {
+**		CheckUtils.execute({
+**			type : "Chinese",
+**			id : "dd",
+**			placeId : "ddTip",
+**		});
+**	};
+**/
+
+var CheckUtils = {
+	Chinese : function(id, placeId, accordContents, unaccordContents, accordCls, unaccordCls) {
+		var target = document.getElementById(id),
+			  place = document.getElementById(placeId),
+			  temp;
+		if (target.value) {
+			if (escape(target.value).indexOf("%u") < 0) { 
+				place.innerHTML = accordContents;
+				place.className = accordCls;
+				temp = 1;
+			}else {
+				place.innerHTML = unaccordContents;
+				place.className = unaccordCls;
+				temp = 0;
+			}
+		}else {
+			place.innerHTML = "";
+			temp = 0;
+		}	
+		return temp;
+	}
+};
+CheckUtils.execute = function(command) {
+	var cm = command;
+	return CheckUtils[command.type] (
+			cm.id, 
+			cm.placeId, 
+			cm.accordCls, 
+			cm.unaccordCls,
+			cm.accordContents,
+			cm.unaccordContents
+	);
+};
