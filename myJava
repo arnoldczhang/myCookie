@@ -1,0 +1,508 @@
+
+
+
+//***java作用域***
+//作用域       当前类    同一package   子孙类     其他package
+//public             √              √                    √                 √
+//protected      √              √                    √                 ×
+//default          √              √                    ×                  ×
+//private           √              ×                    ×                  ×
+
+//仅对本类可见----private
+//对所有类可见----public
+//对本包和所有子类可见----protected
+//对本包可见----默认
+
+//注：如果子孙类和父类在同一个包内，则子孙类方法可以访问default的父类方法
+//如果如果子孙类和父类不在同一个包内，则不能访问，这里很重要。
+//protected则不管子孙类和父类在不在同一个包，都是可以访问的
+
+
+//返回一个可变对象的引用，先克隆
+public Date getHireDay() {
+	return (Date) hireDay.clone();
+}
+
+
+
+//默认构造器
+public Employee() {
+	this.name = "xx";
+	this.age = 0;
+	...
+}
+
+
+
+//重载
+public Employee(String name) {
+	this.name = name;
+}
+public Employee(String name, int age) {
+	this.name = name;
+	this.age = age;
+}
+
+
+
+//初始化块
+class Employee {
+	...
+	private int nextId;
+	static {
+		Random generator = new Random();
+		nextId = generetor.nextInt(100);
+	}
+}
+
+
+
+//一个方法不能实现让对象独享参数引用一个新的对象
+public static void swap(Employee x, Employee y) {
+	Employee temp = x;
+	x = y;
+	y = temp;					//不起交换作用的
+}
+
+
+
+//this可以引用隐式参数，
+public Employee(String n, double s) {
+	this.name = n;
+	this.salary = s;
+}
+//this也可以调用该类的其他构造器
+//调用了Employee(String n, double s)
+public Employee(double s) {
+	this("Employee #" + nextId, s);	
+}
+
+
+
+//super调用父类的方法
+public double getSalary() {
+	double salary = super.getSalary();
+	return salary + bonus;
+}
+private double bonus;
+//super也可以调用父类的构造器
+public Manager(String name, double salary) {
+	super(name, salary);
+	bonus = 0;
+}
+
+
+
+//***类设计技巧***
+//1.一定将数据设计为私有
+//private String name;
+
+//2.一定要对数据初始化
+//name = "xxx";
+
+//3.不要再类中使用过多的基本数据类型，
+//比如各种String, int，最好用一个新的类来专门放这些
+
+//4.不是所有的域都要独立的getter和setter，
+//比如一些禁止外人更改的数据
+
+//5.使用标准形式进行类的定义-------
+//采用下面的顺序书写类的内容
+//**********
+//公有访问特性部分----public
+//包作用域访问特性部分----protected和默认default
+//私有访问特性部分----private
+//**********
+//每一部分中，应该按照下列顺序列出
+//**********
+//实例方法public void/... xxx(){}
+//静态方法public static void/... xxx(){}
+//实例域 {private String/... xxx;...}
+//静态域 static {id = 11;...}
+//**********
+
+//6.将职责过多的类进行分解
+//public class CardDeck{...}
+//public class Card{...}
+
+//7.类名和方法名能体现他们的职责
+//类名以形容词+名词
+//方法名以get/set等动词+名词
+
+
+
+//***继承***
+//1.子类可以增加域，增加方法，覆盖父类的方法，
+//但是不能删除父类的任何方法和域
+//如果覆盖方法，则子类方法不能低于父类方法的可见性，
+//即父类是public，子类一定要是public
+//2.子类的每个对象，也是父类的对象，反之不成立
+//3.任何出现父类对象的地方都可以用子类对象置换，比如
+Employee e;
+e = new Employee(...);
+e = new Manager(...);
+
+//***继承设计技巧***
+//1.将公共操作和域放在父类
+//2.不要使用protected域
+//3.使用继承要实现"is-a"关系，即子类一定是父类的派生
+//4.除非所有的继承方法都有意思，否则不要使用继承
+//5.覆盖方法时，不改变预期行为
+//6.使用多态，而非类型信息
+//7.不要过多使用反射
+
+
+//***阻止继承***
+//类被定义为final时，里面的方法自动为final，
+//但是域不会为final
+final class Executive extends Manager{
+
+}
+//***阻止子类覆盖方法***
+class Employee {
+	public final String getName() {
+	
+	}
+}
+
+
+
+//***多态***
+//1.一个对象变量可以引用一个父类对象，以及其任何一个子对象，比如
+//staff[0]和boss都引用同一个对象，但是staff[0]仍是Employee对象
+//因此staff[0]不能引用子类Mananger对象的方法
+Manager boss = new Manager(...);
+Employee staff[3] = new Employee[3];
+staff[0] = boss;
+
+//2.子类引用不能调用一个父类引用
+Manager m = staff[1];		//这是错的
+
+//3.父类变量可以调用一个子类引用
+//但是子类变量调用一个父类引用，必须进行强制类型转换
+if (staff[1] instanceof Manager) {
+	boss = (Mananger) staff[1];	//当然，转换不会成功
+}
+
+
+//***类型转换***
+//1.只能在继承层次内进行类型转换
+//2.在将父类转换成子类之前，应该使用instanceof进行检查
+
+
+
+//***抽象类***
+//不可被实例化
+//---------充当占位角色，具体实现扩展在子类中
+//扩展抽象类两个途径-------
+
+//1.子类中定义部分抽象方法，或一个也不定义，
+//这样也要将子类标记为抽象类
+
+//2.子类中定义全部抽象方法
+//这样子类就不必是抽象类了
+
+
+
+//***equals***
+//在Object类中判断两个对象是否具有相同引用
+//***对equals扩展***
+public boolean equals(Object otherObject) {
+
+	//1.检测this与otherObject是否引用同一个对象
+	if (this == otherObject) {			
+		return true;
+	}
+	
+	//2.检测otherObject是否为空
+	if (otherObject == null) {
+		return false;
+	}
+	
+	//3.比较this与otherObject是否属于同一个类
+	//如果equals的语义在每个子类中都有所改变，就用getClass()
+	if (getClass() != otherObject.getClass()) {
+		return false;
+	}
+	
+	//4.否则，如果所有子类都有统一的语义，用instanceof
+	if (!(otherObject instanceof 类名)) {
+		return false;
+	}
+	
+	//5.将otherObject转换为相应的类类型变量
+	类名 other = (类名) otherObject;
+	
+	//6.对所需要比较的域进行比较，
+	//"=="：比较基本类型域，"equals"：比较对象域
+	return  name.equals(other.name)
+			&& salary == other.salary
+			&& hireDay.equals(other.hireDay);
+}
+
+//子类中重新定义equals，就要在其中调用super.equals(other)，再进行扩展
+class Manager extends Employee {
+
+	public boolean equals(Object otherObject) {
+		if (!super.equals(otherObject)) {
+			return false;
+		}
+		Manager other = (Manager) otherObject;
+		return bonus = other.bonus;
+	}
+}
+
+
+
+//***toString***
+//返回表示对象值的字符串
+//***对toString扩展***
+public String toString() {
+	//调用getClass.getName()获取类名的字符串
+	return getClass.getName()
+			+ "[name=" + name
+			+ ",salary=" + salary
+			+ ",hireDay=" + hireDay
+			+ "]";
+}
+//子类中重新定义toString，就要在其中调用super.toString()，再进行扩展
+class Manager extends Employee {
+	public String toString() {
+		return super.toString()
+				+ "[bonus=" + bonus
+				+ "]";
+	}
+}
+
+
+
+//***ArrayList***
+ArrayList<E> list = new ArrayList<E>();
+ArrayList<E> list2 = new ArrayList<E>(100);
+list.add(new E(...));
+list.add(1, new E(...));
+list.get(1);
+list.remove(1);
+for (E e : list) {
+	e.raiseSalary();
+}
+//ArrayList对象包装器---Integer, Long, Float, 
+//Double, Short, Byte, Character, Void, Boolean
+//由于ArrayList<>括号中不允许是基本数据类型，比如-ArrayList<int>
+//因此会用到上面的对象包装器
+ArrayList<Integer> list = new ArrayList<Integer> ();
+//但是将值包装在对象中，效率远低于
+int[] list222= new int[10];
+String s = "xxxxx";
+int x = Integer.parseInt(s);
+
+
+
+//***枚举类***
+//不要用equals比较，直接"=="就行了
+String in = "small";
+String input = in.toUpperCase();
+
+//static Enum valueOf(Class enumClass, String name)
+//返回指定名字，给定类的枚举常量
+Size size = Enum.valueOf(Size.class, input);		//SMALL
+
+//String toString()
+//返回枚举常量名，是valueOf的逆方法
+Size.SMALL.toString();			//SMALL
+
+//int ordinal()
+//返回枚举常量在enum中的位置，从0开始计数
+Size.MEDIUM.ordinal();			//1
+if (size == Size.EXTRA_LARGE) {
+	...
+}
+size.getAbbr();		//S，调用Size中的方法
+enum Size {
+	SMALL("S"),
+	MEDIUM("M"),
+	LARGE("L"),
+	EXTRA_LARGE("XL");
+	
+	private Size(String abbr) {
+		this.abbr = abbr;
+	}
+	
+	public String getAbbr() {
+		return abbr;
+	}
+	
+	private String abbr;
+}
+
+
+
+//***反射（待续）***
+Employee e;
+//比较两个类对象
+if (e.getClass() == Employee.class) {
+	...
+}
+//快速创建一个类的实例，调用默认的构造器，
+//如果没有，则抛出异常
+e.getClass().netInstance();
+
+
+
+
+
+//***接口***
+//---------没有实例域的抽象类，但接口不是类
+//可以声明接口变量，但是接口变量必须引用实现了接口的类对象
+Comparable x;
+x = new Employee(...);
+//接口中所有方法自动属于public，不必手动提供public关键字
+//接口不能包含实例类，不能实现方法，可以包含常量
+public interface Moveable {
+	void move(double x, double y);
+}
+public interface Powered extends Moveable {
+	double milesPerGallon();
+	double SPEED_LIMIT = 95;
+}
+//实现接口时，必须把方法声明为public，否则这个方法访问属性是包可见性
+public int Compareble<T> {
+	int compareTo(T other);
+}
+//实现Comparable接口的类中，必须提供compareTo方法
+class Employee implements Comparable<Employee> {
+
+	@Override
+	public int Comparable(Employee other) {
+		if (salary < other.salary) {
+			return -1;
+		}else if(salary > other.salary) {
+			return 1;
+		}
+		return 0;
+	}
+}
+//希望某个类同时具有拷贝和比较的能力
+class Employe implements Comparable, Cloneable {
+	...
+}
+
+//***接口和抽象类***
+//java单继承多接口，降低复杂性
+
+
+
+//***对象克隆***
+public Employee clone() throws CloneNotSupportedException [
+	Employee cloned = (Employee) super.clone();
+	
+	cloned.hireDay = (Date) hireDay.clone();
+	
+	return cloned;
+}
+//注意；要抛出cloneNotSupportedException
+//由于try {}catch{}比较适用于final类，因此这里不用这种形式
+
+
+
+//***回调***
+class TimePrinter implements ActionListener {
+	public void actionPerformed(ActionEvent event) {
+		Date now = new Date();
+		...;
+	}
+}
+
+public static void main(String[] args) {
+	ActionListener listener = new TimePrinter();
+	Timer t = new Timer(1000, listener);
+	t.start();
+}
+
+
+
+//***静态内部类***
+public class ArrayAlg {
+
+	public static class Pair {
+		
+		public Pair(double f, double s) {
+			this.first = f;
+			this.second = s;
+		}
+		
+		public double getFirst() {
+			return first;
+		}
+		
+		public double getSecond() {
+			return second;
+		}
+
+		public static Pair minmax(double[] values) {
+			double min = Double.MIN_VALUE;
+			double max =Double.MAX_VALUE;
+			
+			for(double v : values) {
+				if (min > v) min = v;
+				if (max < v) max = v;
+			}
+			return new Pair(min, max);
+		}
+		
+		private double first;
+		private double second;
+	}
+}
+public static void main(String[] args) {
+
+	double[] d = new double[20];
+		for (int i = 0; i < d.length; i += 1) {
+			d[i] = 100 * Math.random();	
+		}
+		ArrayAlg.Pair p = ArrayAlg.Pair.minmax(d);
+		
+		System.out.println(p.getFirst());
+		System.out.println(p.getSecond());
+}
+
+
+
+//***异常***
+//		Throwable
+//Error					Exception
+//			IOException			Runtime Exception
+//Error描述了java运行时系统的内部错误和资源耗尽错误，很少
+//Runtime Exception（本人的错）包含
+//1.错误的类型转换
+//2.数组访问越界
+//3.访问空指针
+//RunTimeException不包含
+//1.试图在文件尾部后面读取数据
+//2.试图打开一个错误格式的url
+//3.试图根据给定的字符串查找Class对象，而这个字符串表示的类不存在
+try {
+	...
+}catch(IOException e) {
+	...
+}catch(EmptyStackException e2) {
+	...
+}finally {
+	...
+}
+//建议独立使用try-catch和try-finally
+InputStream in = ...;
+try {
+	try {
+		...
+	}finally {
+		in.close();
+	}
+}catch(IOException e) {
+	...
+}
+//如果try块中含有return，则在方法返回之前，
+//finally子句的内容仍将被执行
+
+
+
