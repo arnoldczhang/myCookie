@@ -27,6 +27,14 @@
 设计模式
 *******************
 排序
+*******************
+前端
+*******************
+html表达式
+*******************
+调用javascript
+*******************
+js变量解析顺序
 ***********************************************************************/
 
 
@@ -70,7 +78,8 @@ var GetElemStyleId = function(id) {
 /**
 **----------------------------CLASS------------------------------------ 3
 **/
-var HasClass = function(obj, cls) {  
+var HasClass = function(id, cls) {  
+	var obj = document.getElementById(id);
 	return obj.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));  
 };
 var AddClass = function(id, cls) {
@@ -179,7 +188,7 @@ var CheckMobile = function(id, placeId, accordCls, unaccordCls) {
 	var temp,
 		  value = document.getElementById(id).value,
 		  place = document.getElementById(placeId),
-	  	  regex = /^((\(\d{3}\))|(\d{3}\-))?13[0-9]\d{8}|15[0-9]\d{8}|189\d{8}$/g;
+	  	  regex = /^((\(\d{3}\))|(\d{3}\-))?13[0-9]\d{8}|15[0-9]\d{8}|18[0-9]\d{8}$/g;
 	 if (regex.test(value)) {
 		 place.innerHTML = "符合手机格式";
 		 place.className = accordCls;
@@ -449,7 +458,17 @@ var projStatus = {
 var value = "b1";
 projStatus[value];
 **/
-
+例：
+	var child = {};
+	child["a"] = 1;
+	child["b"] = 2;
+	child["c"] = 3;
+	function a1(val) {
+		if (child.hasOwnProperty(val)) {
+			return child[val];
+		};
+	};
+	a1["d"];	//false
 /**
 **----------------------------JSON-------------------------------------10
 **/
@@ -485,6 +504,17 @@ var ChineseToUnicode = function(cStr) {
 @Repository:持久层组件  
 @Service:服务层组件  
 @Controller:控制层组件 
+
+
+
+***@Transactional***
+添加@Transactional到某个Service类上，说明该Service的所有方法
+都支持事务管理，若在某个方法上添加@Transactional，只声明该方
+法支持事务。当支持事务的方法开始执行前都会先打开一个事务，碰
+到异常时就会回滚。Spring的默认配置是碰到RunTimeException时才
+会进行事务回滚。
+
+
 
 ***@RequestMapping***
 RequestMapping注解有六个属性，下面我们把她分成三类进行说明:
@@ -611,6 +641,7 @@ D)@RequestParam绑定单个请求参数值，作用于单个参数，而不是�
 }		
 		
 		
+		
 ***@ResponseBody***
 A)	将内容或对象作为 HTTP 响应正文返回，即不需要VIEW展现层模块，直接显示到客户端的内容。
 B)		POST模式下，使用@RequestBody绑定请求对象
@@ -623,9 +654,11 @@ B)		POST模式下，使用@RequestBody绑定请求对象
 		
 
 ***@Valid***
-定递归验证关联的对象；如用户对象中有个地址对象属性，
-如果想在验证用户对象时一起验证地址对象的话，
-在地址对象上加@Valid注解即可级联验证。
+1、将页面传过来的对象信息封装到指定pojo类中，可使用getter/setter取到值，
+	  当然，pojo类要准备好；
+2、定递归验证关联的对象；如用户对象中有个地址对象属性，
+	  如果想在验证用户对象时一起验证地址对象的话，
+	  在地址对象上加@Valid注解即可级联验证。
 例：@Transactional
 		@RequestMapping(value = "/transOutQuery", method=RequestMethod.GET)
 		@PreAuthorize("isAuthenticated()")
@@ -678,6 +711,96 @@ spring可以自动帮你把bean里面引用的对象的setter/getter方法省略
 			}  
 		  
 		}  
+		
+	
+	
+***@SuppressWarnings***
+对被批注的代码元素内部的某些警告保持静默。
+例：	
+	@SuppressWarnings("serial")
+	public class WebUser extends User {
+		
+	}
+	
+	
+	
+***@PreAuthorize***
+权限验证
+例：
+	@Transactional
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	public void removeContact(Integer id) {
+	  contactDAO.removeContact(id);
+	}
+	
+	
+	
+***@PathVariable***
+获取URL访问路径变量。
+例：
+		访问路径是/company/techferry，companyName获取到的值就是techferry。
+		@Controller
+		@RequestMapping("/company")
+		public class CompanyController {
+			  @Autowired
+			  private CompanyService companyService;
+			  @RequestMapping("{companyName}")
+			  public String getCompany(Map<String, Object> map, @PathVariable String companyName) {
+					Company company = companyService.findByName(companyName);
+					map.put("company", company);
+					return "company";
+			  }
+			  ...
+		}
+		
+		
+
+***@AuthenticationPrincipal***
+用户认证
+@AuthenticationPrincipal WebUser user
+@SuppressWarnings("serial")
+public class WebUser extends User {
+
+	private Integer userId;
+	private String name;
+	private String realname;
+
+	public WebUser(Integer userId, String username, String password,
+			boolean isLocked,
+			Collection<? extends GrantedAuthority> authorities) {
+		super(username, password, true, true, true, !isLocked,authorities);//账户锁定字段默认是false，所以这里添加了！运算符
+		this.name = username;
+		this.userId = userId;
+	}
+
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
+	
+	public Integer getUserId() {
+		return userId;
+	}
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getRealname() {
+		return realname;
+	}
+
+	public void setRealname(String realname) {
+		this.realname = realname;
+	}
+}
+
+
+
+
 /**
 **----------------------------设计模式-----------------------------------13
 **/
@@ -833,9 +956,187 @@ window.onload = function() {
 
 //
 
+
 /**
-**----------------------------xxxxxx-----------------------------------15
+**----------------------------前端-----------------------------------15
 **/
+
+重绘：
+	当在页面上修改了一些不需要改变定位的样式的时候（比如background-color,border-color,visibility)，
+	浏览器只会将新的样式重新绘制给元素（这就叫一次“重绘”或者“重新定义样式”）。
+
+重排：
+	当页面上的改变影响了文档内容、结构或者元素定位时，就会发生重排（或称“重新布局”）。
+	重排通常由以下改变触发：
+	1、DOM 操作（如元素增、删、改或者改变元素顺序）。
+	2、内容的改变，包括 Form 表单中文字的变化。
+	3、计算或改变 CSS 属性。
+	4、增加或删除一个样式表。
+	5、改变”class”属性。
+	6、浏览器窗口的操作（改变大小、滚动窗口）。
+	7、激活伪类（如:hover状态）。
+
+强制重排（给元素改变同一个属性两次，却没有看到变化过程）：
+	例：
+	$(this).removeClass('has-transition');
+	// 改变元素属性
+	$(this).css('margin-left', 100);
+	//触发一次强制重排，从而使变化了的class或属性能够立即执行。
+	$(this)[0].offsetHeight; // offsetHeight仅仅是个例子，其他的属性也可以奏效。
+	// 再将包含transition的class添加回来
+	$(this).addClass('has-transition');
+	// 改变元素属性
+	$(this).css('margin-left', 50);
+
+CSS 选择器的性能排行（从最快的开始）：
+	1、ID选择器：#id
+	2、class选择器： .class
+	3、标签: div
+	4、相邻的兄弟元素：a + i
+	5、父元素选择器： ul > li
+	6、通配符选择器： *
+	7、伪类和伪元素： a:hover ，（你应该记住浏览器处理选择器是从右向左的，
+	这也就是为什么最右面的选择器会更快——#id或.class）。
+
+实际的优化建议：
+	1、尽可能的减少 DOM 的操作。把所有东西都缓存起来，
+	包括属性和对象（如果它可被重复使用）。进行复杂的
+	操作的时候，最好操作一个“离线”的元素（“离线”元素的
+	意思是与 DOM 对象分开、仅存在内存中的元素），
+	然后将这个元素插入到 DOM 中。
+	2、如果你使用 jQuery，遵循jQuery 选择器最佳实践
+	3、要改变元素的样式，修改“class”属性是最高效的方式之一。
+	你要改变 DOM 树的层次越深，这一条就越高效（这也有助于将表现和逻辑分开）。
+	4、尽可能的只对 position 为 absolute 或 fix 的元素做动画。因为一个 position 为
+	 absolue 或 fixed 的元素的大小变化只影响它自身和子孙元素，而对一个 position 为 
+	 static 的元素做同样的操作就会引起所有它后面元素的重排。
+	5、当滚动时禁用一些复杂的 :hover 动画是一个很好的主意
+	（例如，给 body 标签加一个 no-hover 的 class）关于这个主题的文章。
+
+
+/**
+**----------------------------html表达式-----------------------------------16
+**/	
+
+格式：
+	<!--[if expression]> HTML <![endif]-->
+
+操作符：
+	[if IE]   判断是否IE
+	[if IE 7]  判断是否是IE7
+	[if !IE]  判断是否不是IE
+	[if lt IE 5.5]  判断是否是IE5.5 以下版本。  (<)
+	[if lte IE 6]   判断是否等于IE6 版本或者以下 (<=)
+	[if gt IE 5]  判断是否IE5以上版本  （> ）
+	[if gte IE 7]  判断是否 IE7 版本或者以上
+	[if !(IE 7)] 判断是否不是IE7
+	[if (gt IE 5)&(lt IE 7)]   判断是否大于IE5， 小于IE7
+	[if (IE 6)|(IE 7)]  判断是否IE6 或者 IE7
+
+注意：
+	1、ie5下不支持；
+	2、有人会试图使用<!--[if !IE]>来定义非IE浏览器下的状况，
+		但注意：条件注释只有在IE浏览器下才能执行，这个代码
+		在非IE浏览下非单不是执行该条件下的定义，而是当做注
+		释视而不见。
+	
+例子：
+	<!--[if IE]><p>You are using Internet Explorer.</p><![endif]-->  
+	<![if !IE]><p>You are not using Internet Explorer.</p><![endif]>  
+	<!--[if IE 7]><p>Welcome to Internet Explorer 7!</p><![endif]-->  
+
+普通的用法：
+	<link rel="stylesheet" type="text/css" href="moz.css" />
+	<!--[if IE 7]>
+	<link rel="stylesheet" type="text/css" href="ie7.css" />
+	<![endif]-->
+
+解释：
+	如上例，moz.css是默认的CSS样式，应该位于HTML文档的首行，
+	进行条件注释判断的所有内容必须位于该默认样式之后。
+
+/**
+**----------------------------调用javascript-----------------------------------17
+**/	
+方法一改变src：
+	<script id="external_script" type="text/JavaScript"></script>
+	<script>
+		document.getElementById('external_script').src = 'http://cross.domain.com/other.js';
+	</script>
+
+方法二document.write：
+	<script>
+		document.write('<script src="', 'http://cross.domain.com/other.js', '" type="text/JavaScript"><\/script>');
+	</script>
+
+如何处理大块js？：分成许多小块，把他们连起来，setTimeout依次执行
+	function doSomething (callbackFn) {
+
+		// 初始化
+		(function () {
+			if (termination condition) {
+				callbackFn();
+			} else {
+				setTimeout(arguments.callee, 0);
+			}
+		})();
+	};
+
+如何减少事件处理？：使用事件代理，利用事件冒泡
+例：
+
+	<div id="container">
+		  <ul>
+				<li id="li-1">List Item 1</li>
+				<li id="li-2">List Item 2</li>
+				<li id="li-3">List Item 3</li>
+				<li id="li-4">List Item 4</li>
+				<li id="li-5">List Item 5</li>
+		  </ul>
+	</div>
+
+	AddEvent("container", "click", function(e) {
+		//获取对象！！！！！
+		var el = e.srcElement ? e.srcElement : e.target;
+		if (el.nodeName.toUpperCase() === "LI") {
+			
+			//do something
+		}
+	});
+	
+	
+
+/**
+**----------------------------js变量解析顺序-----------------------------------18
+**/
+1.Language-defined: All scopes are, by default, given the names this and arguments.
+2.Formal parameters: Functions can have named formal parameters, which are scoped to the body of that function.
+3.Function declarations: These are of the form function foo() {}.
+4.Variable declarations: These take the form var foo;.
+/**
+**----------------------------xxxxxx-----------------------------------18
+**/
+
+//字符串操作
+myArray.push(value);
+myArray[myArray.length] = value;
+myArray[idx++] = value;
+
+//效率append
+var dd = document.getElementById("dd");
+var obj = "";
+window.onload = function() {
+	var str = "<input type='text' class='input' /><br />";
+	for (var i = 0; i < 100; i += 1) {
+		obj += str;
+	}
+	dd.innerHTML += obj;
+};
+
+//动态创建标签
+var e = "header,span,footer".split(","), i = e.length;
+while(i--) document.createElement(e[i]);
+
 //安全码加密
 private PasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
 String hashedPassword = passwordEncoder.encodePassword(password, username);
@@ -851,7 +1152,7 @@ for (var i = 0; i < attrLength; i += 1) {
 }
 //a标签打开新的选项卡而不是页面直接跳转
 <a href="..." target="_blank" >dddd</a>
-//自执行立即调用方法
+//自执行立即调用方法（内部声明的变量是局部变量）
 (function dd() {
 	console.log("dd");
 }());
@@ -997,3 +1298,26 @@ var ClientUtils= {};
 sub.onclick = function() {
 	ClientUtils.CheckName("a1", "a1label");
 };
+
+
+//className
+function getElementsByClassName(className,tag){  
+  //对tag进行过滤，取出所有对象，如取出所有input类型对象。  
+  var allTags=document.getElementsByTagName(tag);  
+  var matchingElements=new Array();  
+	
+  //正则表达式  
+  className = className.replace(/\-/g,"\\-");  
+  var regex = new RegExp("(^|\\s)" +className+ "(\\s|$)");  
+	
+  var element;  
+	
+	  //将取出的tag对象存入数组中。  
+	  for(var i=0;i<allTags.length;i++){  
+		  element =allTags[i];  
+		  if(regex.test(element.className)){  
+			  matchingElements.push(element);  
+			  }  
+	  }  
+	return matchingElements;  
+};  
