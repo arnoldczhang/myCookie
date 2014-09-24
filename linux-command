@@ -37,6 +37,11 @@ umask-----文件默认权限
 chattr-------设置
 lsattr-------列出来
 
+file-----查看文件类型
+which---
+whereis------
+locate------
+updatedb-----更新.conf
 
 
 
