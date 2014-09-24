@@ -1,0 +1,48 @@
+date
+cal----日历
+bc-----计算器
+
+nano
+sync-----内存数据写入硬盘
+shutdown-----   -h now立刻关机
+                -r now立刻重启
+passwd----改密码
+ls
+ll------  ls -l
+chgrp-----改用户组
+chown-----改文件拥有者
+chmod-----改文件权限
+cp----- -a -i -r
+su
+
+pwd----- pwd -P
+mkdir
+rmdir---- rmdir -p
+rm------ rm -r -f -i
+mv----- -f -i -u
+cat------ -n 查看文件内容
+tac------ 反向查看文件内容
+nl------ 查看并添加行号
+more------翻页看
+less------翻页看
+数据选取
+tail------- -f -n num
+head------- -n num
+od
+
+touch----创建/修改文件
+umask-----文件默认权限
+
+文件隐藏属性
+chattr-------设置
+lsattr-------列出来
+
+
+
+
+
+
+
+
+
+
