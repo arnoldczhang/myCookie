@@ -42,8 +42,15 @@ which---
 whereis------
 locate------
 updatedb-----更新.conf
+find-------
 
-
+df-----查出目前挂载的设备
+dumpe2fs------设备中的区块信息
+du-------评估文件系统磁盘使用量
+ln-----快捷方式
+fdisk------分区
+mkfs-----磁盘格式化
+mke2fs------
 
 
 
